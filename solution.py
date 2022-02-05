@@ -23,14 +23,17 @@ def welcome_assignment_answers(question):
     elif question == "What layer from the TCP/IP model the protocol DHCP belongs to? - The answer should be a numeric number":
         answer=4
     elif question == "What layer of the TCP/IP model the protocol TCP belongs to? - The answer should be a numeric number":
-        answer=4
+        answer=3
+    else:
+        answer = "Whats the Question"
     return(answer)
+
 # Complete all the questions.
 
 
 if __name__ == "__main__":
     #use this space to debug and verify that the program works
-    debug_question = "Is it possible to decrypt a message without a key? - Yes/No?"
+    debug_question = "Is MD5 a secured hashing algorithm? - Yes/No"
     print(welcome_assignment_answers(debug_question))
 
 ###Questions:
