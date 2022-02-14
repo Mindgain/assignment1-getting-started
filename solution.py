@@ -8,7 +8,6 @@ def webServer(port):
   serverSocket = socket(AF_INET, SOCK_STREAM)
   #Prepare a server socket
   host = "127.0.0.1"
-  port = 4001
   serverSocket.bind((host, port))
   serverSocket.listen(5)
 
