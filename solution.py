@@ -35,7 +35,8 @@ def webServer(port=13331):
         connectionSocket.close()
       except IOError:
         # Send response message for file not found (404)
-        connectionSocket.send('\n404 File Not Found\n')
+        connectionSocket.send(bytes('HTTP/1.1 File Not Found\r\n\r\n','UTF-8'))
+        #connectionSocket.send('\n404 File Not Found\n')
 
         #Close client socket
         connectionSocket.close()
