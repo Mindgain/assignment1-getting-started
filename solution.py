@@ -1,53 +1,59 @@
-# import socket module
 from socket import *
-# In order to terminate the program
-import sys
 
 
-def webServer(port=13331):
-  serverSocket = socket(AF_INET, SOCK_STREAM)
-  #Prepare a server socket
-  host = "127.0.0.1"
-  serverSocket.bind((host, port))
-  serverSocket.listen(1)
+def smtp_client(port=1025, mailserver='127.0.0.1'):
+    msg = "\r\n My message"
+    endmsg = "\r\n.\r\n"
 
-  while True:
-    #Establish the connection
-    #print('Ready to serve...')
-    connectionSocket, addr = serverSocket.accept()
-    try:
+    # Choose a mail server (e.g. Google mail server) if you want to verify the script beyond GradeScope
+    mailserver= ('127.0.0.1', 1025)
+    # Create socket called clientSocket and establish a TCP connection with mailserver and port
+    clientSocket= socket(AF_INET, SOCK_STREAM)
+    clientSocket.conenct(mailserver)
 
-      try:
-        message = connectionSocket.recv(1024)
-        filename = message.split()[1]
-        f = open(filename[1:])
-        outputdata = f.read()
-        
-        #Send one HTTP header line into socket.
-        connectionSocket.send(bytes('HTTP/1.1 200 OK\r\n\r\n','UTF-8'))
-        
+    recv = clientSocket.recv(1024).decode()
+    #print(recv) #You can use these print statement to validate return codes from the server.
+    #if recv[:3] != '220':
+    #    print('220 reply not received from server.')
 
-        #Send the content of the requested file to the client
-        for i in range(0, len(outputdata)):
-          connectionSocket.send(outputdata[i].encode())
+    # Send HELO command and print server response.
+    heloCommand = 'HELO Alice\r\n'
+    clientSocket.send(heloCommand.encode())
+    recv1 = clientSocket.recv(1024).decode()
+    #print(recv1) 
+    #if recv1[:3] != '250':
+    #    print('250 reply not received from server.')
 
-        connectionSocket.send("\r\n".encode())
-        connectionSocket.close()
-      except IOError:
-        # Send response message for file not found (404)
-        connectionSocket.send(bytes('HTTP/1.1 404 File Not Found\r\n\r\n','UTF-8'))
-        #connectionSocket.send('\n404 File Not Found\n')
+    # Send MAIL FROM command and handle server response.
+    mail_command =('MAIL FROM: eee7225@nyu.edu>rn')
+    clientSocket.send(mail_command.encode())
+    recv2= clientSocket.recv(1024).decode()
 
-        #Close client socket
-        connectionSocket.close()
+    # Send RCPT TO command and handle server response.
+    rcpt_command= ('RCPT TO: achievepm@yahoo.com>rn')
+    clientSocket.send(rcpt_command.encode())
+    recv3= clientSocket.recv(1024).decode()
 
-        
+    # Send DATA command and handle server response.
+    data = "DATA rn"
+    clientSocket.send(data.encode())
+    recv4 = clientSocket.recv(1024).decode()
 
-    except (ConnectionResetError, BrokenPipeError):
-      pass
+    # Send message data.
+    subject ="Subject : Testing my mailrnrn"
+    clientSocket.send(subject.encode())
+    clientSocket.send(msg.encode())
+    clientSocket.send(endmsg.encode())
 
-  serverSocket.close()
-  sys.exit()  # Terminate the program after sending the corresponding data
+    # Message ends with a single period, send message end and handle server response.
+    recv_msg = clientSocket.recv(1024)
+    quitcommand = ('QUITrn')
+    clientSocket.send(quitcommand.encode())
+    recv5= clientSocket.recv(1024).decode()
 
-if __name__ == "__main__":
-  webServer(13331)
+    # Send QUIT command and handle server response.
+    clientSocket.close()
+
+
+if __name__ == '__main__':
+    smtp_client(1025, '127.0.0.1')
