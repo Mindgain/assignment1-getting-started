@@ -6,12 +6,16 @@ import time
 import select
 import binascii
 # Should use stdev
+import statistics
 
 ICMP_ECHO_REQUEST = 8
 #timeRTT = []
 #packageSent = 0
 #packageRev = 0
-
+packet_min = 666666
+packet_max = 0
+totTime = 0
+packet_avg = 0
 
 def checksum(string):
     csum = 0
@@ -19,13 +23,13 @@ def checksum(string):
     count = 0
 
     while count < countTo:
-        thisVal = ord(string[count + 1]) * 256 + (string[count])
+        thisVal = (string[count + 1]) * 256 + (string[count])
         csum += thisVal
         csum &= 0xffffffff
         count += 2
 
     if countTo < len(string):
-        csum += ord(string[len(string) - 1])
+        csum += (string[len(string) - 1])
         csum &= 0xffffffff
 
     csum = (csum >> 16) + (csum & 0xffff)
@@ -53,8 +57,11 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
 
         # Fill in start
         icmpHeader = recPacket[20:28]
+        struct_format ="bbHHh"
+        unpacked_data = struck.unpack(struct_format, icmpHeader)
+        print(unpacked_data)
         # Fetch the ICMP header from the IP packet
-        type, code, checksum, identifier, sequence = struct.unpack('bbHHh', icmpHeader)
+        type, code, checksum, identifier, sequence = struct.unpack(struct_format, icmpHeader)
 
         if ID == identifier:
             #bytesInDouble = struct.calcsize('d')
@@ -107,7 +114,8 @@ def doOnePing(destAddr, timeout):
 
 
     # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
-    mySocket = socket(AF_INET, SOCKET_RAW, icmp)
+    mySocket =socket(AF_INET, SOCK_RAW, icmp)
+    #mySocket = socket(AF_INET,SOCKET_RAW,icmp)
 
     myID = os.getpid() & 0xFFFF  # Return the current process i
     sendOnePing(mySocket, destAddr, myID)
@@ -122,19 +130,20 @@ def ping(host, timeout=1):
     print("Pinging " + dest + " using Python:")
     print("")
     # Calculate vars values and return them
-    #  vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
+    stdev_var = [1,2,3,4,5]
+    vars = [float(round(packet_min, 2)), float(round(packet_avg, 2)), float(round(packet_max, 2)),float(round(statistics.stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
-    #for i in range(0,4):
-    #    delay = doOnePing(dest, timeout)
-    #    print(delay)
-    #    time.sleep(1)  # one second
-
-    #return vars
-    while 1:
+    for i in range(0,4):
         delay = doOnePing(dest, timeout)
         print(delay)
-        time.sleep(1)
-    return delay
+        time.sleep(1)  # one second
+
+    return vars
+    #while 1:
+    #    delay = doOnePing(dest, timeout)
+    #    print(delay)
+    #    time.sleep(1)
+    #return delay
 
 if __name__ == '__main__':
     ping("google.co.il")
