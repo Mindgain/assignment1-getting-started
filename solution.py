@@ -8,6 +8,9 @@ import binascii
 # Should use stdev
 
 ICMP_ECHO_REQUEST = 8
+timeRTT = []
+packageSent = []
+packageRev = []
 
 
 def checksum(string):
