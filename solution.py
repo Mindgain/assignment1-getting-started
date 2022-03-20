@@ -59,19 +59,19 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         icmpHeader = recPacket[20:28]
         struct_format ="bbHHh"
         unpacked_data = struck.unpack(struct_format, icmpHeader)
-        print(unpacked_data)
+       # print(unpacked_data)
         # Fetch the ICMP header from the IP packet
         type, code, checksum, identifier, sequence = struct.unpack(struct_format, icmpHeader)
 
-        if ID == identifier:
+        #if ID == identifier:
             #bytesInDouble = struct.calcsize('d')
-            timeSent = struct.unpack('d', recPacket[28:36])[0]
+          #  timeSent = struct.unpack('d', recPacket[28:36])[0]
             #timeRTT.append(timeReceived - timeData)
             #packageRev += 1
-            delay = timeReceived - timeSent
-            return delay
-        else:
-            return "Packet does not match"
+         #   delay = timeReceived - timeSent
+         #   return delay
+        #else:
+        #    return "Packet does not match"
         # Fill in end
         timeLeft = timeLeft - howLongInSelect
         if timeLeft <= 0:
