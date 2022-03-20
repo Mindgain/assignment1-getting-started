@@ -9,8 +9,8 @@ import binascii
 
 ICMP_ECHO_REQUEST = 8
 timeRTT = []
-packageSent = []
-packageRev = []
+packageSent = 0
+packageRev = 0
 
 
 def checksum(string):
