@@ -8,9 +8,9 @@ import binascii
 # Should use stdev
 
 ICMP_ECHO_REQUEST = 8
-timeRTT = []
-packageSent = 0
-packageRev = 0
+#timeRTT = []
+#packageSent = 0
+#packageRev = 0
 
 
 def checksum(string):
@@ -19,13 +19,13 @@ def checksum(string):
     count = 0
 
     while count < countTo:
-        thisVal = (string[count + 1]) * 256 + (string[count])
+        thisVal = ord(string[count + 1]) * 256 + (string[count])
         csum += thisVal
         csum &= 0xffffffff
         count += 2
 
     if countTo < len(string):
-        csum += (string[len(string) - 1])
+        csum += ord(string[len(string) - 1])
         csum &= 0xffffffff
 
     csum = (csum >> 16) + (csum & 0xffff)
@@ -38,7 +38,7 @@ def checksum(string):
 
 
 def receiveOnePing(mySocket, ID, timeout, destAddr):
-    global packageRev, timeRTT
+    #global packageRev, timeRTT
     timeLeft = timeout
 
     while 1:
@@ -52,18 +52,19 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         recPacket, addr = mySocket.recvfrom(1024)
 
         # Fill in start
-        icmp_header = recPacket[20:28]
+        icmpHeader = recPacket[20:28]
         # Fetch the ICMP header from the IP packet
-        requestType, code, revChecksum, revId, revSeq = struct.unpack('bbHHh', icmp_header)
+        type, code, checksum, identifier, sequence = struct.unpack('bbHHh', icmpHeader)
 
-        if ID == revId:
-            bytesInDouble = struct.calcsize('d')
-            timeData = struct.unpack('d', recPacket[28:28 + bytesInDouble])[0]
-            timeRTT.append(timeReceived - timeData)
-            packageRev += 1
-            return timeReceived - timeData
+        if ID == identifier:
+            #bytesInDouble = struct.calcsize('d')
+            timeSent = struct.unpack('d', recPacket[28:36])[0]
+            #timeRTT.append(timeReceived - timeData)
+            #packageRev += 1
+            delay = timeReceived - timeSent
+            return delay
         else:
-            return "ID DOES NOT MATCH!!!!!"
+            return "Packet does not match"
         # Fill in end
         timeLeft = timeLeft - howLongInSelect
         if timeLeft <= 0:
@@ -71,6 +72,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
 
 
 def sendOnePing(mySocket, destAddr, ID):
+    #global packageSent
     # Header is type (8), code (8), checksum (16), id (16), sequence (16)
 
     myChecksum = 0
@@ -94,6 +96,7 @@ def sendOnePing(mySocket, destAddr, ID):
     packet = header + data
 
     mySocket.sendto(packet, (destAddr, 1))  # AF_INET address must be tuple, not str
+    #packageSent += 1
 
 
     # Both LISTS and TUPLES consist of a number of objects
@@ -104,7 +107,7 @@ def doOnePing(destAddr, timeout):
 
 
     # SOCK_RAW is a powerful socket type. For more details:   http://sockraw.org/papers/sock_raw
-    mySocket = socket(AF_INET, SOCK_RAW, icmp)
+    mySocket = socket(AF_INET, SOCKET_RAW, icmp)
 
     myID = os.getpid() & 0xFFFF  # Return the current process i
     sendOnePing(mySocket, destAddr, myID)
@@ -121,12 +124,17 @@ def ping(host, timeout=1):
     # Calculate vars values and return them
     #  vars = [str(round(packet_min, 2)), str(round(packet_avg, 2)), str(round(packet_max, 2)),str(round(stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
-    for i in range(0,4):
+    #for i in range(0,4):
+    #    delay = doOnePing(dest, timeout)
+    #    print(delay)
+    #    time.sleep(1)  # one second
+
+    #return vars
+    while 1:
         delay = doOnePing(dest, timeout)
         print(delay)
-        time.sleep(1)  # one second
-
-    return vars
+        time.sleep(1)
+    return delay
 
 if __name__ == '__main__':
     ping("google.co.il")
