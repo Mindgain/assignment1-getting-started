@@ -68,7 +68,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         if icmptype !=8 and ID == identifier:
             bytesInDouble = struct.calcsize("d")
             timeSent = struct.unpack('d', recPacket[28:36 + bytesInDouble])[0]
-            rtt = (timeReceived - timeData) * 1000
+            rtt = (timeReceived - timeSent) * 1000
             return rtt
             #packageRev += 1
          #   delay = timeReceived - timeSent
