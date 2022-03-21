@@ -1,4 +1,5 @@
 from socket import *
+from array import *
 import os
 import sys
 import struct
@@ -57,7 +58,7 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         recPacket, addr = mySocket.recvfrom(1024)
 
         # Fill in start
-        icmpHeader = recPacket[20:28]
+        icmpHeader = recPacket[20:28]12
         struct_format ="bbHHh"
         #unpacked_data = struck.unpack(struct_format, icmpHeader)
        # print(unpacked_data)
