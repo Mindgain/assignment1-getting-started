@@ -6,16 +6,17 @@ import time
 import select
 import binascii
 # Should use stdev
-import statistics
+from statistics import *
+
 
 ICMP_ECHO_REQUEST = 8
 #timeRTT = []
 #packageSent = 0
 #packageRev = 0
-packet_min = 666666
-packet_max = 0
-totTime = 0
-packet_avg = 0
+#packet_min = 99999999
+#packet_max = 0
+#totTime = 0
+#packet_avg = 0
 
 def checksum(string):
     csum = 0
@@ -58,15 +59,16 @@ def receiveOnePing(mySocket, ID, timeout, destAddr):
         # Fill in start
         icmpHeader = recPacket[20:28]
         struct_format ="bbHHh"
-        unpacked_data = struck.unpack(struct_format, icmpHeader)
+        #unpacked_data = struck.unpack(struct_format, icmpHeader)
        # print(unpacked_data)
         # Fetch the ICMP header from the IP packet
-        type, code, checksum, identifier, sequence = struct.unpack(struct_format, icmpHeader)
+        icmptype, code, checksum, identifier, sequence = struct.unpack(struct_format, icmpHeader)
 
-        #if ID == identifier:
-            #bytesInDouble = struct.calcsize('d')
-          #  timeSent = struct.unpack('d', recPacket[28:36])[0]
-            #timeRTT.append(timeReceived - timeData)
+        if icmptype !=8 and ID == identifier:
+            bytesInDouble = struct.calcsize("d")
+            timeSent = struct.unpack('d', recPacket[28:36 + bytesInDouble])[0]
+            rtt = (timeReceived - timeData) * 1000
+            return rtt
             #packageRev += 1
          #   delay = timeReceived - timeSent
          #   return delay
@@ -127,18 +129,26 @@ def doOnePing(destAddr, timeout):
 def ping(host, timeout=1):
     # timeout=1 means: If one second goes by without a reply from the server,  	# the client assumes that either the client's ping or the server's pong is lost
     dest = gethostbyname(host)
-    print("Pinging " + dest + " using Python:")
-    print("")
+    #print("Pinging " + dest + " using Python:")
+    #print("")
+    delay_float = array('f')
     # Calculate vars values and return them
-    stdev_var = [1,2,3,4,5]
-    vars = [float(round(packet_min, 2)), float(round(packet_avg, 2)), float(round(packet_max, 2)),float(round(statistics.stdev(stdev_var), 2))]
+    #stdev_var = [1,2,3,4,5]
+    #vars = [float(round(packet_min, 2)), float(round(packet_avg, 2)), float(round(packet_max, 2)),float(round(statistics.stdev(stdev_var), 2))]
     # Send ping requests to a server separated by approximately one second
     for i in range(0,4):
         delay = doOnePing(dest, timeout)
         print(delay)
         time.sleep(1)  # one second
+    packet_min = min(delay_float)
+    packet_max = max(delay_float)
+    packet_avg = (sum(delay_float))/(len(delay_float))
+    stdev_var = stdev(delay_float)
 
+    vars = packet_min, packet_avg, packet_max, stdev_var
     return vars
+
+    
     #while 1:
     #    delay = doOnePing(dest, timeout)
     #    print(delay)
