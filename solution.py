@@ -77,8 +77,8 @@ def get_route(hostname):
             # Make a raw socket named mySocket
             #Fill in end
             icmp = getprotobyname("icmp")
-            #mySocket = socket.socket(socket.AF_INET, socket.SOCKET_RAW, icmp)
-            mySocket = socket(AF_INET,SOCKET_RAW, icmp)
+            mySocket = socket.socket(socket.AF_INET, socket.SOCKET_RAW, icmp)
+            #mySocket = socket(AF_INET,SOCKET_RAW, icmp)
             mySocket.setsockopt(IPPROTO_IP, IP_TTL, struct.pack('I', ttl))
             mySocket.settimeout(TIMEOUT)
             try:
