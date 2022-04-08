@@ -56,7 +56,7 @@ def build_packet():
     data = struct.pack("d", time.time())
     myChecksum = checksum(header + data)
 
-    if sys.platform = 'darwin':
+    if sys.platform == 'darwin':
         myChecksum = socket.htons(myChecksum) & 0xffff
     else:
         myChecksum = socket.htons(myChecksum)
